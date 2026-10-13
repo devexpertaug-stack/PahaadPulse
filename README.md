@@ -11,6 +11,30 @@ npm run dev      # http://localhost:5173
 npm run build    # type-check + production build
 ```
 
+## Deploy to Netlify
+
+This is a static frontend (no backend), so hosting is free. Build settings are
+already committed in `netlify.toml` and the SPA redirect in `public/_redirects`.
+
+**From the Netlify website (no CLI needed):**
+
+1. Push this repo to GitHub (already done).
+2. Go to [app.netlify.com](https://app.netlify.com) → **Add new site → Import an existing project**.
+3. Choose **GitHub** and pick the `PahaadPulse` repo (authorise Netlify if asked).
+4. Netlify reads `netlify.toml`, so the fields are pre-filled:
+   - **Build command:** `npm run build`
+   - **Publish directory:** `dist`
+5. Click **Deploy**. In ~1 minute you get a live URL like `https://your-site.netlify.app`.
+
+Every push to the repo redeploys automatically.
+
+**Or via the Netlify CLI:**
+
+```bash
+npm install -g netlify-cli
+netlify deploy --build --prod
+```
+
 ## What's inside
 
 | Screen | What it shows |
