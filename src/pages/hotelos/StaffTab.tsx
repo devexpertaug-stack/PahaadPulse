@@ -27,7 +27,7 @@ export default function StaffTab() {
         <StatCard label="Total Staff Tracked" value={String(staffMembers.length)} sub="5 departments" icon={Minus} accent="blue" />
       </div>
 
-      <div className="rounded-xl border border-emerald-900/40 bg-[#0b140e]/80 overflow-hidden">
+      <div className="glass-card rounded-3xl overflow-hidden">
         <div className="hidden sm:grid grid-cols-[2fr_1fr_1.2fr_0.8fr_0.8fr_0.8fr_1fr] gap-2 px-4 py-3 border-b border-emerald-900/30 text-[11px] font-semibold text-gray-500 uppercase">
           <span>Staff</span>
           <span>Department</span>

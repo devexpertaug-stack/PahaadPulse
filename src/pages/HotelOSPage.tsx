@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Building2, Phone, Users, Receipt } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
 import OccupancyTab from './hotelos/OccupancyTab';
@@ -16,20 +17,24 @@ const tabs: { key: Tab; label: string; icon: typeof Building2; subtitle: string 
 ];
 
 export default function HotelOSPage() {
-  const [tab, setTab] = useState<Tab>('occupancy');
+  const [params] = useSearchParams();
+  const requested = params.get('tab');
+  const [tab, setTab] = useState<Tab>(
+    tabs.some((t) => t.key === requested) ? (requested as Tab) : 'occupancy',
+  );
   const active = tabs.find((t) => t.key === tab)!;
 
   return (
     <div>
       <PageHeader title="Hotel OS & Occupancy" subtitle={`PahaadPulse Eco Resort – Auli — ${active.subtitle}`} />
 
-      <div className="flex items-center gap-1 bg-black/30 border border-emerald-900/40 rounded-full p-1 mb-6 w-fit overflow-x-auto scrollbar-none">
+      <div className="glass-pill mb-6 flex w-fit max-w-full items-center gap-1 overflow-x-auto rounded-full p-1 scrollbar-none">
         {tabs.map((t) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
             className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition ${
-              tab === t.key ? 'bg-emerald-500 text-black' : 'text-gray-300 hover:text-white hover:bg-white/5'
+              tab === t.key ? 'bg-white/[0.17] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18)]' : 'text-white/75 hover:text-white hover:bg-white/[0.07]'
             }`}
           >
             <t.icon size={14} />

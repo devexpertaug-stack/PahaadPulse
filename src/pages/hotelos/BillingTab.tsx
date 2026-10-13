@@ -64,7 +64,7 @@ export default function BillingTab() {
       </div>
 
       {showForm && (
-        <div className="rounded-xl border border-emerald-900/40 bg-[#0b140e]/80 p-4 mb-6 animate-fade-in">
+        <div className="glass-card rounded-3xl p-4 mb-6 animate-fade-in">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
             <div>
               <label className="block text-[11px] text-gray-400 mb-1">Guest Name</label>
@@ -138,7 +138,7 @@ export default function BillingTab() {
         {bills.map((bill) => {
           const total = bill.items.reduce((s, it) => s + it.qty * it.rate, 0);
           return (
-            <div key={bill.id} className="rounded-xl border border-emerald-900/40 bg-[#0b140e]/80 p-4">
+            <div key={bill.id} className="glass-card rounded-3xl p-4">
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <p className="text-sm font-semibold text-white">{bill.guestName}</p>

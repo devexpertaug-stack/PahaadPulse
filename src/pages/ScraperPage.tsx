@@ -60,7 +60,7 @@ export default function ScraperPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         {targets.map((t) => (
-          <div key={t.name} className="rounded-xl border border-emerald-900/40 bg-[#0b140e]/80 p-4">
+          <div key={t.name} className="glass-card rounded-3xl p-4">
             <div className="flex items-center justify-between mb-3">
               <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full border ${t.color}`}>{t.name}</span>
               <span className="flex items-center gap-1 text-[11px] text-emerald-400">
@@ -74,7 +74,7 @@ export default function ScraperPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="rounded-xl border border-emerald-900/40 bg-[#0b140e]/80 p-4">
+        <div className="glass-card rounded-3xl p-4">
           <p className="text-sm font-semibold text-white mb-4">Scrape Targets</p>
           <div className="space-y-4">
             {[
@@ -123,7 +123,7 @@ export default function ScraperPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-emerald-900/40 bg-[#0b140e]/80 p-4">
+        <div className="glass-card rounded-3xl p-4">
           <p className="text-sm font-semibold text-white mb-3">Live Scraper Console</p>
           <div className="rounded-lg bg-black/60 border border-emerald-900/30 p-3 h-56 overflow-y-auto font-mono text-[11px] text-emerald-300 leading-relaxed">
             {lines.length === 0 && (

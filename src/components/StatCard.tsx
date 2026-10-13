@@ -17,7 +17,7 @@ const accentMap = {
 
 export default function StatCard({ label, value, sub, icon: Icon, accent = 'emerald' }: StatCardProps) {
   return (
-    <div className="rounded-xl border border-emerald-900/40 bg-[#0b140e]/80 p-4">
+    <div className="glass-card rounded-3xl p-4">
       <div className="flex items-center justify-between mb-2">
         <span className="text-[11px] font-semibold tracking-wide text-gray-400 flex items-center gap-1.5">
           <span className={`h-1.5 w-1.5 rounded-full bg-current ${accentMap[accent]}`} />
