@@ -15,6 +15,7 @@ npm run build    # type-check + production build
 
 | Screen | What it shows |
 | --- | --- |
+| **Login** (`/`) | Landing page: glass panel over the leaf photo, demo sign-in (any credentials work, or use the quick-fill button) |
 | **Overview** (home) | Glass dashboard: occupancy ring, monthly revenue, reputation, **revenue at risk by cause**, department filter, rate plans, check-in calendar, WhatsApp-complaint and staff-performance cards |
 | **Reviews** | Reviews from Booking.com / Google / TripAdvisor / Goibibo, auto-categorised by sentiment, with AI-drafted replies |
 | **Scraper** | Channel connections and a simulated sync console |

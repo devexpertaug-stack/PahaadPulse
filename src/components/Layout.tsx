@@ -2,6 +2,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Mountain, ChevronDown, LogOut, Settings, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
 import { HOTEL_NAME } from '../data/mockData';
+import PhotoCredit from './PhotoCredit';
 
 const navItems = [
   { to: '/app/overview', label: 'Overview' },
@@ -125,26 +126,7 @@ export default function Layout() {
         </main>
       </div>
 
-      <p className="mx-auto mt-4 max-w-[1280px] text-center text-[11px] text-white/40">
-        Background photo: Calathea orbifolia by{' '}
-        <a
-          className="underline decoration-white/20 underline-offset-2 hover:text-white/70"
-          href="https://commons.wikimedia.org/wiki/File:Starr-110215-1133_Calathea_orbifolia-leaves-KiHana_Nursery_Kihei-Maui_(25075687535).jpg"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Forest &amp; Kim Starr
-        </a>{' '}
-        ·{' '}
-        <a
-          className="underline decoration-white/20 underline-offset-2 hover:text-white/70"
-          href="https://creativecommons.org/licenses/by/3.0/us/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          CC BY 3.0
-        </a>
-      </p>
+      <PhotoCredit className="mx-auto mt-4 max-w-[1280px]" />
     </div>
   );
 }
