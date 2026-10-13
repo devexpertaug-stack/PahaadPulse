@@ -1,142 +1,192 @@
-import { useState } from 'react';
-import { Play, CheckCircle2, Zap } from 'lucide-react';
-import PageHeader from '../components/PageHeader';
+import { useMemo, useRef, useState } from 'react';
+import { CheckCircle2, Link2, Link2Off, Play, Zap } from 'lucide-react';
+import PageHero from '../components/ui/PageHero';
+import Card from '../components/ui/Card';
+import Badge from '../components/ui/Badge';
+import Switch from '../components/ui/Switch';
+import { sourceTone } from '../components/ui/tones';
+import { useApp } from '../store/AppStore';
+import { CREDIT_LIMIT } from '../store/state';
+import { CHANNELS } from '../data/seed';
+import { channelLabel } from '../lib/metrics';
+import { planScrape } from '../lib/scrape';
 
-interface ScraperTarget {
-  name: string;
-  indexed: number;
-  color: string;
+const IDLE = '$ idle — press “Scrape web now” to start a sync…';
+
+function lineClass(line: string) {
+  if (line.startsWith('✓')) return 'text-emerald-200';
+  if (line.startsWith('⚡')) return 'text-amber-200';
+  if (line.startsWith('!')) return 'text-rose-200';
+  if (line.startsWith('   +')) return 'text-emerald-100/70';
+  if (line.startsWith('–')) return 'text-white/40';
+  return 'text-white/80';
 }
 
-const targets: ScraperTarget[] = [
-  { name: 'Booking.com', indexed: 9, color: 'text-blue-300 border-blue-700/30 bg-blue-500/10' },
-  { name: 'Google Reviews', indexed: 8, color: 'text-red-300 border-red-700/30 bg-red-500/10' },
-  { name: 'TripAdvisor', indexed: 8, color: 'text-emerald-300 border-emerald-700/30 bg-emerald-500/10' },
-];
-
 export default function ScraperPage() {
-  const [toggles, setToggles] = useState({ booking: true, google: true, tripadvisor: true, optimise: true });
+  const { state, dispatch, say } = useApp();
   const [running, setRunning] = useState(false);
   const [lines, setLines] = useState<string[]>([]);
+  const consoleRef = useRef<HTMLDivElement>(null);
+
+  const indexed = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const r of state.reviews) m[r.source] = (m[r.source] ?? 0) + 1;
+    return m;
+  }, [state.reviews]);
+
+  const creditPct = Math.min(100, Math.round((state.credits / CREDIT_LIMIT) * 100));
+  const active = CHANNELS.filter((c) => state.channels[c].connected && state.channels[c].enabled).length;
 
   const scrapeNow = () => {
+    if (running) return;
+    const plan = planScrape(state);
     setRunning(true);
-    setLines(['$ idle — press "Scrape Web Now" to start a sync...']);
-    const steps = [
-      '$ Connecting to Booking.com API...',
-      '✓ Booking.com: authenticated, pulling latest reviews',
-      '✓ Booking.com: 9 reviews indexed (0 new)',
-      '$ Connecting to Google Reviews...',
-      '✓ Google: fetched 8 reviews via Places API',
-      '$ Connecting to TripAdvisor...',
-      '✓ TripAdvisor: 8 reviews synced',
-      '⚡ Credit optimiser: cached 62% of duplicate requests',
-      '✓ Sync complete — 25 reviews indexed across 3 channels',
-    ];
-    steps.forEach((line, i) => {
+    setLines([]);
+    plan.lines.forEach((line, i) => {
       setTimeout(() => {
         setLines((prev) => [...prev, line]);
-        if (i === steps.length - 1) setRunning(false);
-      }, (i + 1) * 450);
+        consoleRef.current?.scrollTo({ top: consoleRef.current.scrollHeight });
+        if (i === plan.lines.length - 1) {
+          dispatch({
+            type: 'scrape/done',
+            reviews: plan.reviews,
+            cursors: plan.cursors,
+            credits: plan.credits,
+            stamp: plan.stamp,
+            keys: plan.keys,
+          });
+          setRunning(false);
+          say(
+            plan.reviews.length
+              ? `${plan.reviews.length} new review${plan.reviews.length === 1 ? '' : 's'} indexed and categorised`
+              : plan.keys.length
+                ? 'Everything is already up to date'
+                : 'No channels were synced',
+            plan.reviews.length ? { label: 'Open reviews', to: '/app/reviews' } : undefined,
+          );
+        }
+      }, (i + 1) * 320);
     });
   };
 
   return (
-    <div>
-      <PageHeader
+    <div className="animate-fade-in">
+      <PageHero
         title="Web Scraper & Channels"
-        subtitle="Pull guest reviews from Booking.com, Google & TripAdvisor — credit optimised"
-        action={
-          <button
-            onClick={scrapeNow}
-            disabled={running}
-            className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 text-black font-semibold text-sm px-4 py-2 rounded-lg transition"
-          >
-            <Play size={14} />
-            {running ? 'Scraping...' : 'Scrape Web Now'}
+        subtitle="Pull fresh reviews from the booking channels you connect — with a credit optimiser so you only pay for what changed."
+        actions={
+          <button onClick={scrapeNow} disabled={running} className="btn-primary">
+            <Play size={15} />
+            {running ? 'Scraping…' : 'Scrape web now'}
           </button>
         }
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        {targets.map((t) => (
-          <div key={t.name} className="glass-card rounded-3xl p-4">
-            <div className="flex items-center justify-between mb-3">
-              <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full border ${t.color}`}>{t.name}</span>
-              <span className="flex items-center gap-1 text-[11px] text-emerald-400">
-                <CheckCircle2 size={12} /> Connected
-              </span>
+      <div className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {CHANNELS.map((ch) => {
+          const st = state.channels[ch];
+          return (
+            <div key={ch} className="glass-tile flex min-w-0 flex-col rounded-[26px] p-5" data-testid={`channel-${ch}`}>
+              <div className="mb-4 flex items-center justify-between gap-2">
+                <Badge tone={sourceTone[ch]}>{channelLabel[ch]}</Badge>
+                <span
+                  className={`flex items-center gap-1 text-[11.5px] ${st.connected ? 'text-emerald-100' : 'text-white/55'}`}
+                >
+                  {st.connected ? <CheckCircle2 size={13} /> : <Link2Off size={13} />}
+                  {st.connected ? 'Connected' : 'Not connected'}
+                </span>
+              </div>
+              <p className="font-display text-[34px] font-light leading-none text-white">{indexed[ch] ?? 0}</p>
+              <p className="mt-1 text-[12px] text-white/65">reviews indexed</p>
+              <p className="mt-3 text-[11.5px] text-white/50">
+                {st.connected && st.lastSync ? `Last sync ${st.lastSync}` : 'Connect to start syncing'}
+              </p>
+              <div className="mt-4 flex items-center justify-between gap-2 border-t border-white/10 pt-4">
+                <button
+                  onClick={() => {
+                    dispatch({ type: 'channel/connect', key: ch, on: !st.connected });
+                    say(st.connected ? `${channelLabel[ch]} disconnected` : `${channelLabel[ch]} connected`);
+                  }}
+                  className="btn-glass btn-sm"
+                >
+                  {st.connected ? <Link2Off size={13} /> : <Link2 size={13} />}
+                  {st.connected ? 'Disconnect' : 'Connect'}
+                </button>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11.5px] text-white/60">Sync</span>
+                  <Switch
+                    on={st.enabled}
+                    disabled={!st.connected}
+                    label={`Include ${channelLabel[ch]} in sync`}
+                    onChange={(on) => dispatch({ type: 'channel/enable', key: ch, on })}
+                  />
+                </div>
+              </div>
             </div>
-            <p className="text-2xl font-bold text-white">{t.indexed}</p>
-            <p className="text-xs text-gray-500 mt-1">reviews indexed</p>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="glass-card rounded-3xl p-4">
-          <p className="text-sm font-semibold text-white mb-4">Scrape Targets</p>
-          <div className="space-y-4">
-            {[
-              { key: 'booking' as const, label: 'Booking.com' },
-              { key: 'google' as const, label: 'Google Reviews' },
-              { key: 'tripadvisor' as const, label: 'TripAdvisor' },
-            ].map((item) => (
-              <div key={item.key} className="flex items-center justify-between">
-                <span className="text-sm text-gray-300">{item.label}</span>
-                <button
-                  onClick={() => setToggles((p) => ({ ...p, [item.key]: !p[item.key] }))}
-                  className={`relative h-5 w-9 rounded-full transition ${
-                    toggles[item.key] ? 'bg-emerald-500' : 'bg-gray-700'
-                  }`}
-                >
-                  <span
-                    className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition ${
-                      toggles[item.key] ? 'left-4.5 translate-x-0.5' : 'left-0.5'
-                    }`}
-                  />
-                </button>
-              </div>
-            ))}
-            <div className="pt-3 border-t border-emerald-900/30">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-300 flex items-center gap-1.5">
-                  <Zap size={13} className="text-amber-400" /> Optimise API Credits
-                </span>
-                <button
-                  onClick={() => setToggles((p) => ({ ...p, optimise: !p.optimise }))}
-                  className={`relative h-5 w-9 rounded-full transition ${
-                    toggles.optimise ? 'bg-amber-500' : 'bg-gray-700'
-                  }`}
-                >
-                  <span
-                    className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition ${
-                      toggles.optimise ? 'left-4.5 translate-x-0.5' : 'left-0.5'
-                    }`}
-                  />
-                </button>
-              </div>
-              <p className="text-[11px] text-gray-500 mt-1.5">
-                Caching & dedupe on — up to 62% fewer credits used
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+        <Card title="Credit optimiser" eyebrow="API usage">
+          <div className="flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <p className="flex items-center gap-1.5 text-[14px] text-white/90">
+                <Zap size={14} className="text-amber-200" /> Optimise API credits
+              </p>
+              <p className="mt-1 text-[12.5px] leading-relaxed text-white/60">
+                Caches unchanged reviews and skips duplicates, so each channel costs {state.optimiseCredits ? 8 : 20}{' '}
+                credits per sync instead of {state.optimiseCredits ? 20 : 8}.
               </p>
             </div>
+            <Switch
+              on={state.optimiseCredits}
+              label="Optimise API credits"
+              onChange={(value) => dispatch({ type: 'pref', key: 'optimiseCredits', value })}
+            />
           </div>
-        </div>
 
-        <div className="glass-card rounded-3xl p-4">
-          <p className="text-sm font-semibold text-white mb-3">Live Scraper Console</p>
-          <div className="rounded-lg bg-black/60 border border-emerald-900/30 p-3 h-56 overflow-y-auto font-mono text-[11px] text-emerald-300 leading-relaxed">
-            {lines.length === 0 && (
-              <p className="text-gray-500">$ idle — press "Scrape Web Now" to start a sync...</p>
-            )}
+          <div className="mt-6">
+            <div className="mb-2 flex items-baseline justify-between text-[13px]">
+              <span className="text-white/75">Credits used this month</span>
+              <span className="tabular-nums text-white">
+                {state.credits} <span className="text-white/50">/ {CREDIT_LIMIT}</span>
+              </span>
+            </div>
+            <div
+              className="h-2.5 overflow-hidden rounded-full bg-black/35"
+              role="progressbar"
+              aria-valuenow={state.credits}
+              aria-valuemin={0}
+              aria-valuemax={CREDIT_LIMIT}
+              aria-label="Credits used"
+            >
+              <div
+                className={`h-full rounded-full transition-all duration-500 ${creditPct > 85 ? 'bg-rose-200/80' : 'bg-white/70'}`}
+                style={{ width: `${creditPct}%` }}
+              />
+            </div>
+            <p className="mt-3 text-[12px] text-white/55">
+              {active} of {CHANNELS.length} channels will be included in the next sync.
+            </p>
+          </div>
+        </Card>
+
+        <Card title="Live scraper console" eyebrow="Sync log">
+          <div
+            ref={consoleRef}
+            data-testid="console"
+            className="h-64 overflow-y-auto rounded-2xl border border-white/10 bg-black/35 p-4 font-mono text-[12px] leading-relaxed"
+          >
+            {lines.length === 0 && <p className="text-white/45">{IDLE}</p>}
             {lines.map((line, i) => (
-              <p key={i} className={line.startsWith('✓') ? 'text-emerald-400' : line.startsWith('⚡') ? 'text-amber-400' : 'text-gray-300'}>
+              <p key={i} className={`whitespace-pre-wrap break-words ${lineClass(line)}`}>
                 {line}
               </p>
             ))}
-            {running && <span className="cursor-blink text-emerald-400">▋</span>}
+            {running && <span className="cursor-blink text-emerald-200">▋</span>}
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );

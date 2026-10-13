@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   BedDouble,
@@ -19,7 +19,9 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import SegmentRing from '../components/overview/SegmentRing';
 import XCToggle from '../components/overview/XCToggle';
-import { staffMembers, whatsAppComplaints } from '../data/mockData';
+import { avatarGradient } from '../components/ui/Avatar';
+import { useApp } from '../store/AppStore';
+import { fmtINR, ordinal } from '../lib/format';
 import type { Department } from '../types';
 
 /* ───────────────────────── static demo data ───────────────────────── */
@@ -41,53 +43,13 @@ const plans = [
   { key: 'tent', label: 'Garden Tent', rate: 3800 },
 ] as const;
 
-/** Where revenue is leaking this month (sums to ₹64,520 — the "Revenue at risk" figure). */
-const drivers = [
-  { key: 'wifi', label: 'Wi-Fi', amount: 14800 },
-  { key: 'service', label: 'Service', amount: 18520 },
-  { key: 'heating', label: 'Heating', amount: 31200 },
-] as const;
-
-const MONTHLY_REVENUE = 940520;
-const REVENUE_AT_RISK = drivers.reduce((s, d) => s + d.amount, 0);
-const OCCUPANCY = 82;
-
-const ARRIVALS_BY_WEEKDAY_SLOT = [5, 4, 6, 3, 8, 5, 7]; // index = day % 7 → today (13th) = 7
-
-const avatarGradients = [
-  'from-[#ff9a3c] to-[#e8412c]',
-  'from-[#5ec2ff] to-[#2b5fd9]',
-  'from-[#ff7a45] to-[#c2381b]',
-  'from-[#ffd23f] to-[#f29f05]',
-  'from-[#f08fc0] to-[#a63d8a]',
-  'from-[#7be0a5] to-[#1f9d63]',
-  'from-[#b69cff] to-[#6a45d8]',
-];
-
-const insights: Record<Filter, string> = {
-  All: `Heating & hot-water failures drive ${Math.round(
-    (31200 / REVENUE_AT_RISK) * 100,
-  )}% of revenue at risk — fix those first to recover the most.`,
-  Housekeeping: 'Housekeeping averages 85 — Deepak Bisht leads at 94 with zero complaints.',
-  'Front Desk': 'Ravi Chauhan scores 61 with 4 complaints; one guest reported unanswered calls tonight.',
-  'Food & Beverage': 'The kitchen is the star: Kavita Negi scores 91 with 15 positive guest mentions.',
-  Maintenance: 'Maintenance has the lowest score (52) and 6 complaints — geyser and heating are the repeat offenders.',
-  Security: 'One high-attention call is open: a wasp nest near the room 202 balcony.',
-};
+/** Forecast of arrivals on other dates (today's number comes from the live arrivals list). */
+const ARRIVALS_BY_WEEKDAY_SLOT = [5, 4, 6, 3, 8, 5, 7]; // index = day % 7
+const TODAY = 13;
 
 /* ───────────────────────────── helpers ───────────────────────────── */
 
-const fmt = (n: number) => n.toLocaleString('en-IN');
-
-const ordinal = (n: number) => {
-  if (n % 100 >= 11 && n % 100 <= 13) return 'th';
-  return ['th', 'st', 'nd', 'rd'][n % 10 > 3 ? 0 : n % 10];
-};
-
-interface ToastState {
-  msg: string;
-  action?: { label: string; to: string };
-}
+const fmt = fmtINR;
 
 /** Currency-style superscript, top-aligned to the digits (as the "$" in the reference). */
 function Sup({ children }: { children: React.ReactNode }) {
@@ -171,48 +133,85 @@ function SideCard({ icon: Icon, title, caption, value, unit, on, onToggle, toggl
 
 export default function OverviewPage() {
   const navigate = useNavigate();
+  const { state, dispatch, say, rep, risk, occ, staffSum, revenue } = useApp();
 
   const [filter, setFilter] = useState<Filter>('All');
-  const [day, setDay] = useState(13);
+  const [day, setDay] = useState(TODAY);
   const [planKey, setPlanKey] = useState<(typeof plans)[number]['key']>('tent');
-  const [driverKey, setDriverKey] = useState<(typeof drivers)[number]['key']>('heating');
-  const [escalate, setEscalate] = useState(true);
-  const [weeklyReport, setWeeklyReport] = useState(true);
-  const [toast, setToast] = useState<ToastState | null>(null);
+  const [driverKey, setDriverKey] = useState<'wifi' | 'service' | 'heating'>('heating');
 
-  useEffect(() => {
-    if (!toast) return;
-    const t = setTimeout(() => setToast(null), 3600);
-    return () => clearTimeout(t);
-  }, [toast]);
-
-  const say = (msg: string, action?: ToastState['action']) => setToast({ msg, action });
+  // where revenue is leaking, straight from the live review + complaint data
+  const drivers = useMemo(
+    () =>
+      [
+        { key: 'wifi', label: 'Wi-Fi', amount: risk.byGroup['Wi-Fi'] },
+        { key: 'service', label: 'Service', amount: risk.byGroup.Service },
+        { key: 'heating', label: 'Heating', amount: risk.byGroup.Heating },
+      ] as const,
+    [risk],
+  );
 
   const activeFilter = filters.find((f) => f.key === filter)!;
   const plan = plans.find((p) => p.key === planKey)!;
   const driver = drivers.find((d) => d.key === driverKey)!;
-  const maxDriver = Math.max(...drivers.map((d) => d.amount));
+  const maxDriver = Math.max(1, ...drivers.map((d) => d.amount));
 
   const scopedStaff = useMemo(
-    () => staffMembers.filter((s) => filter === 'All' || s.department === filter),
-    [filter],
+    () => state.staff.filter((s) => filter === 'All' || s.department === filter),
+    [filter, state.staff],
   );
   const urgentCount = useMemo(
     () =>
-      whatsAppComplaints.filter(
+      state.complaints.filter(
         (c) =>
           (filter === 'All' || c.department === filter) &&
           c.category === 'high_attention' &&
           c.status !== 'resolved',
       ).length,
-    [filter],
+    [filter, state.complaints],
   );
-  const avgScore = scopedStaff.length
-    ? Math.round(scopedStaff.reduce((s, m) => s + m.performanceScore, 0) / scopedStaff.length)
-    : 0;
+  const avgScore =
+    filter === 'All'
+      ? staffSum.avg
+      : scopedStaff.length
+        ? Math.round(scopedStaff.reduce((s, m) => s + m.performanceScore, 0) / scopedStaff.length)
+        : 0;
 
-  const arrivals = ARRIVALS_BY_WEEKDAY_SLOT[day % 7];
+  const arrivals = day === TODAY ? state.arrivals.length : ARRIVALS_BY_WEEKDAY_SLOT[day % 7];
   const estRevenue = arrivals * plan.rate;
+
+  /** One-line AI insight for the current department filter, from live data. */
+  const insight = (() => {
+    if (filter === 'All') {
+      if (risk.total === 0) return 'Nothing is costing you bookings right now — keep it up.';
+      const [name, amount] = (Object.entries(risk.byGroup) as [string, number][]).sort((a, b) => b[1] - a[1])[0];
+      return `${name} issues drive ${Math.round((amount / risk.total) * 100)}% of revenue at risk — fix those first to recover the most.`;
+    }
+    if (scopedStaff.length === 0) return 'No staff tracked in this department yet.';
+    const best = [...scopedStaff].sort((a, b) => b.performanceScore - a.performanceScore)[0];
+    const worst = [...scopedStaff].sort((a, b) => a.performanceScore - b.performanceScore)[0];
+    const open = state.complaints.filter((c) => c.department === filter && c.status !== 'resolved').length;
+    const tail = open ? ` ${open} open guest message${open === 1 ? '' : 's'} need attention.` : ' No open guest messages.';
+    return best.id === worst.id
+      ? `${filter} averages ${avgScore} — ${best.name} scores ${best.performanceScore}.${tail}`
+      : `${filter} averages ${avgScore} — ${best.name} leads at ${best.performanceScore}, ${worst.name} trails at ${worst.performanceScore}.${tail}`;
+  })();
+
+  const exportReport = () => {
+    const esc = (v: string | number) => `"${String(v).replace(/"/g, '""')}"`;
+    const rows = [
+      ['Guest', 'Channel', 'Rating', 'Date', 'Sentiment', 'Tags', 'Review'],
+      ...state.reviews.map((r) => [r.guestName, r.source, r.rating, r.date, r.sentiment, r.tags.join(' '), r.text]),
+    ];
+    const blob = new Blob([rows.map((r) => r.map(esc).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'pahaadpulse-owner-report.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    say(`Owner report downloaded · ${state.reviews.length} reviews`);
+  };
 
   return (
     <div className="animate-fade-in">
@@ -224,23 +223,23 @@ export default function OverviewPage() {
             <br />
             Overview
           </h1>
-          <SegmentRing value={OCCUPANCY} />
+          <SegmentRing value={occ.pct} />
         </div>
 
         <div className="grid flex-1 grid-cols-1 gap-6 sm:grid-cols-3 lg:gap-8 lg:pl-2">
           <BigStat label="Monthly revenue">
-            {fmt(MONTHLY_REVENUE)}
+            {fmt(revenue)}
             <Sup>₹</Sup>
           </BigStat>
           <BigStat label="Reputation index">
-            3.57
+            {rep.avg.toFixed(2)}
             <Unit>/ 5</Unit>
           </BigStat>
           <BigStat
             label="Revenue at risk"
             hint="Estimated from open high-attention complaints and negative reviews"
           >
-            {fmt(REVENUE_AT_RISK)}
+            {fmt(risk.total)}
             <Sup>₹</Sup>
           </BigStat>
         </div>
@@ -273,7 +272,7 @@ export default function OverviewPage() {
         </div>
         <div className="hidden items-center gap-3 sm:flex">
           <button
-            onClick={() => say('Owner report exported (demo)')}
+            onClick={exportReport}
             className="glass-btn h-11 w-11"
             aria-label="Export report"
           >
@@ -304,16 +303,16 @@ export default function OverviewPage() {
                   <div
                     key={s.id}
                     title={`${s.name} · ${s.role} · score ${s.performanceScore}`}
-                    className={`flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br sm:h-12 sm:w-12 ${
-                      avatarGradients[staffMembers.indexOf(s) % avatarGradients.length]
-                    } font-display text-[12px] font-normal text-white ring-2 ring-[#233229] sm:text-[13px]`}
+                    className={`flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br sm:h-12 sm:w-12 ${avatarGradient(
+                      state.staff.indexOf(s),
+                    )} font-display text-[12px] font-normal text-white ring-2 ring-[#233229] sm:text-[13px]`}
                   >
                     {s.initials}
                   </div>
                 ))}
               </div>
               <button
-                onClick={() => say('Staff onboarding is part of the full HotelOS app')}
+                onClick={() => navigate('/app/hotelos?tab=staff')}
                 className="glass-btn -ml-1 h-11 w-11"
                 aria-label="Add staff"
               >
@@ -323,14 +322,14 @@ export default function OverviewPage() {
 
             <div className="flex items-center gap-3">
               <button
-                onClick={() => say('Editing is disabled in the demo')}
+                onClick={() => navigate('/app/hotelos')}
                 className="glass-btn h-11 w-11"
                 aria-label="Edit"
               >
                 <Pencil size={16} strokeWidth={1.6} />
               </button>
               <button
-                onClick={() => say(insights[filter])}
+                onClick={() => say(insight)}
                 className="glass-btn h-11 w-11"
                 aria-label="AI insight"
                 title="AI insight"
@@ -453,9 +452,9 @@ export default function OverviewPage() {
             caption={filter === 'All' ? 'High attention · open now' : `${activeFilter.label} · high attention open`}
             value={String(urgentCount)}
             unit="urgent"
-            on={escalate}
+            on={state.autoEscalate}
             onToggle={(next) => {
-              setEscalate(next);
+              dispatch({ type: 'pref', key: 'autoEscalate', value: next });
               say(
                 next
                   ? 'Auto-escalation on: high-attention calls alert the GM instantly'
@@ -471,9 +470,9 @@ export default function OverviewPage() {
             caption={filter === 'All' ? 'Average score · this week' : `${activeFilter.label} · average score`}
             value={String(avgScore)}
             unit="/ 100"
-            on={weeklyReport}
+            on={state.weeklyReport}
             onToggle={(next) => {
-              setWeeklyReport(next);
+              dispatch({ type: 'pref', key: 'weeklyReport', value: next });
               say(next ? 'Weekly staff report will be sent every Monday' : 'Weekly staff report turned off');
             }}
             toggleLabel="Weekly staff report"
@@ -481,24 +480,6 @@ export default function OverviewPage() {
           />
         </aside>
       </div>
-
-      {/* ───────── Toast ───────── */}
-      {toast && (
-        <div
-          role="status"
-          className="glass-dark animate-fade-in fixed bottom-6 left-1/2 z-50 flex max-w-[92vw] -translate-x-1/2 items-center gap-4 rounded-full px-5 py-3 text-[13.5px] text-white shadow-2xl"
-        >
-          <span>{toast.msg}</span>
-          {toast.action && (
-            <button
-              onClick={() => navigate(toast.action!.to)}
-              className="shrink-0 rounded-full bg-white/20 px-3 py-1 text-[12px] hover:bg-white/30"
-            >
-              {toast.action.label}
-            </button>
-          )}
-        </div>
-      )}
     </div>
   );
 }

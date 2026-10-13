@@ -7,9 +7,11 @@ import ScraperPage from './pages/ScraperPage';
 import InsightsPage from './pages/InsightsPage';
 import ReputationPage from './pages/ReputationPage';
 import HotelOSPage from './pages/HotelOSPage';
+import { AppProvider } from './store/AppStore';
 
 export default function App() {
   return (
+    <AppProvider>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LoginPage />} />
@@ -25,5 +27,6 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
+    </AppProvider>
   );
 }
