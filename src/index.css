@@ -54,10 +54,10 @@ textarea::placeholder {
 .leaf-bg::before {
   content: "";
   position: fixed;
-  inset: -30%;
+  inset: -10px; /* bleed so the blur never shows an edge */
   z-index: -2;
-  background: url("/bg-calathea.jpg") 50% 40% / cover no-repeat;
-  filter: brightness(0.66) saturate(0.85) contrast(1.2) hue-rotate(-6deg);
+  background: url("/bg-leaves.png") center / cover no-repeat;
+  filter: blur(1.5px) brightness(0.95) saturate(0.95) contrast(1.05);
 }
 .leaf-bg::after {
   content: "";

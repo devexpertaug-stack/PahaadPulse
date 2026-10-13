@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Cloud, Eye, EyeOff, Mountain, X } from 'lucide-react';
 import SegmentRing from '../components/overview/SegmentRing';
-import PhotoCredit from '../components/PhotoCredit';
 
 const features = ['Review intelligence', 'WhatsApp complaints', 'Staff performance', 'Billing'];
 
@@ -147,7 +146,6 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <PhotoCredit className="mx-auto mt-4 max-w-[1120px]" />
 
       {showToast && (
         <div
