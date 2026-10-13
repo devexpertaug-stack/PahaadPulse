@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import Layout from './components/Layout';
+import OverviewPage from './pages/OverviewPage';
 import ReviewsPage from './pages/ReviewsPage';
 import ScraperPage from './pages/ScraperPage';
 import InsightsPage from './pages/InsightsPage';
@@ -13,7 +14,8 @@ export default function App() {
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/app" element={<Layout />}>
-          <Route index element={<Navigate to="/app/reviews" replace />} />
+          <Route index element={<Navigate to="/app/overview" replace />} />
+          <Route path="overview" element={<OverviewPage />} />
           <Route path="reviews" element={<ReviewsPage />} />
           <Route path="scraper" element={<ScraperPage />} />
           <Route path="insights" element={<InsightsPage />} />

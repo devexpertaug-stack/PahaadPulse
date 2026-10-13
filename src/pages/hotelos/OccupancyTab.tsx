@@ -29,7 +29,7 @@ export default function OccupancyTab() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 rounded-xl border border-emerald-900/40 bg-[#0b140e]/80 p-4">
+        <div className="lg:col-span-2 glass-card rounded-3xl p-4">
           <p className="text-sm font-semibold text-white mb-4">Room Status Board</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {rooms.map((room) => (
@@ -47,7 +47,7 @@ export default function OccupancyTab() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-emerald-900/40 bg-[#0b140e]/80 p-4">
+        <div className="glass-card rounded-3xl p-4">
           <p className="text-sm font-semibold text-white mb-4">Open Operational Tasks</p>
           <div className="space-y-3">
             {operationalTasks.map((task) => (

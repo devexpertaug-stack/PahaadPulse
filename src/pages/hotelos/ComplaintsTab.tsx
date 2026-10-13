@@ -67,7 +67,7 @@ export default function ComplaintsTab() {
         ))}
       </div>
 
-      <div className="rounded-xl border border-emerald-900/40 bg-[#0b140e]/80 overflow-hidden">
+      <div className="glass-card rounded-3xl overflow-hidden">
         <div className="divide-y divide-emerald-900/30">
           {filtered.map((c) => {
             const Icon = categoryStyle[c.category].icon;

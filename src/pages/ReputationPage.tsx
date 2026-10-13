@@ -39,7 +39,7 @@ export default function ReputationPage() {
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-        <div className="rounded-xl border border-emerald-900/40 bg-[#0b140e]/80 p-4 flex flex-col items-center">
+        <div className="glass-card rounded-3xl p-4 flex flex-col items-center">
           <p className="self-start text-[11px] font-semibold tracking-wide text-gray-400 mb-3">SENTIMENT DISTRIBUTION</p>
           <DonutChart data={sentimentData} centerValue="" centerLabel="" />
           <div className="flex items-center gap-3 mt-3 text-[11px] text-gray-400">
@@ -49,7 +49,7 @@ export default function ReputationPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-emerald-900/40 bg-[#0b140e]/80 p-4">
+        <div className="glass-card rounded-3xl p-4">
           <p className="text-[11px] font-semibold tracking-wide text-gray-400 mb-4">REVIEWS BY CHANNEL</p>
           <div className="space-y-3.5">
             {Object.entries(sourceCounts).map(([name, count]) => (
@@ -69,7 +69,7 @@ export default function ReputationPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-emerald-900/40 bg-[#0b140e]/80 p-4 flex flex-col items-center justify-center text-center">
+        <div className="glass-card rounded-3xl p-4 flex flex-col items-center justify-center text-center">
           <p className="text-[11px] font-semibold tracking-wide text-gray-500 mb-3">NET REPUTATION INDEX</p>
           <p className="text-4xl font-bold text-emerald-400">{avgRating}</p>
           <p className="text-xs text-gray-500 mt-2 mb-4">out of 5.0 across {total} reviews</p>
@@ -82,7 +82,7 @@ export default function ReputationPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-emerald-900/40 bg-[#0b140e]/80 p-5">
+      <div className="glass-card rounded-3xl p-5">
         <p className="text-sm font-semibold text-white mb-4">Review Momentum & Average Rating</p>
         <ResponsiveContainer width="100%" height={260}>
           <LineChart data={momentum} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>

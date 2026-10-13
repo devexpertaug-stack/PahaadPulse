@@ -38,7 +38,7 @@ function ReviewCard({ review }: { review: Review }) {
   };
 
   return (
-    <div className="rounded-xl border border-emerald-900/40 bg-[#0b140e]/80 p-4 flex flex-col animate-fade-in">
+    <div className="glass-card rounded-3xl p-4 flex flex-col animate-fade-in">
       <div className="flex items-start justify-between gap-2 mb-2">
         <div className="flex items-center gap-2">
           <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${sourceStyle[review.source]}`}>
@@ -153,7 +153,7 @@ export default function ReviewsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-        <div className="rounded-xl border border-emerald-900/40 bg-[#0b140e]/80 p-4 flex flex-col items-center">
+        <div className="glass-card rounded-3xl p-4 flex flex-col items-center">
           <p className="self-start text-[11px] font-semibold tracking-wide text-gray-400 mb-3">SENTIMENT MIX</p>
           <DonutChart data={sentimentData} centerValue={`${positivePct}%`} centerLabel="Positive" />
           <div className="flex items-center gap-3 mt-3 text-[11px] text-gray-400">
@@ -163,13 +163,13 @@ export default function ReviewsPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-emerald-900/40 bg-[#0b140e]/80 p-4 flex flex-col items-center">
+        <div className="glass-card rounded-3xl p-4 flex flex-col items-center">
           <p className="self-start text-[11px] font-semibold tracking-wide text-gray-400 mb-3">REPUTATION GAUGE</p>
           <RingGauge value={(Number(avgRating) / 5) * 100} display={avgRating} sublabel="out of 5.0" />
           <p className="text-[11px] text-gray-500 mt-2">Net index across {total} reviews</p>
         </div>
 
-        <div className="rounded-xl border border-emerald-900/40 bg-[#0b140e]/80 p-4 flex flex-col items-center">
+        <div className="glass-card rounded-3xl p-4 flex flex-col items-center">
           <p className="self-start text-[11px] font-semibold tracking-wide text-gray-400 mb-3">REVIEWS BY CHANNEL</p>
           <DonutChart data={channelData} centerValue={String(total)} centerLabel="Total" />
           <div className="flex items-center gap-2 mt-3 text-[10px] text-gray-400 flex-wrap justify-center">

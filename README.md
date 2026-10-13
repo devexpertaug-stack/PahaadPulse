@@ -1,32 +1,36 @@
-# React + TypeScript + Vite
+# PahaadPulse
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+AI review intelligence + **HotelOS** operations suite for Himalayan eco-resorts.
+Frontend-only demo — all data is mocked, the login is for show.
 
-Currently, two official plugins are available:
+## Run
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev      # http://localhost:5173
+npm run build    # type-check + production build
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## What's inside
+
+| Screen | What it shows |
+| --- | --- |
+| **Overview** (home) | Glass dashboard: occupancy ring, monthly revenue, reputation, **revenue at risk by cause**, department filter, rate plans, check-in calendar, WhatsApp-complaint and staff-performance cards |
+| **Reviews** | Reviews from Booking.com / Google / TripAdvisor / Goibibo, auto-categorised by sentiment, with AI-drafted replies |
+| **Scraper** | Channel connections and a simulated sync console |
+| **Insights** | Issue clusters + "analyse a new review" |
+| **Reputation** | Sentiment mix, channel mix, momentum chart |
+| **Hotel OS** | Occupancy board · WhatsApp complaints (Positive / Neutral / High attention) · Staff performance · Billing (generate a small bill) |
+
+`/app/hotelos?tab=billing|complaints|staff|occupancy` deep-links to a Hotel OS tab.
+
+## Design
+
+- Typography: **Lexend** (light, wide — headings & numbers) + **Outfit** (body), self-hosted via Fontsource.
+- Glass surfaces and the leaf backdrop live in `src/index.css` (`.glass-shell`, `.glass-dark`, `.glass-tile`, `.leaf-bg`).
+- To use a different backdrop, replace `public/bg-calathea.jpg`.
+
+## Credits
+
+Background photo: *Calathea orbifolia* by [Forest & Kim Starr](https://commons.wikimedia.org/wiki/File:Starr-110215-1133_Calathea_orbifolia-leaves-KiHana_Nursery_Kihei-Maui_(25075687535).jpg),
+licensed [CC BY 3.0 US](https://creativecommons.org/licenses/by/3.0/us/) (via Wikimedia Commons).

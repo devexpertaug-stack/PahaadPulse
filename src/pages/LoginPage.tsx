@@ -16,7 +16,7 @@ export default function LoginPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    navigate('/app/reviews');
+    navigate('/app/overview');
   };
 
   return (

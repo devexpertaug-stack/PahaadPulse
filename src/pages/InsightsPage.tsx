@@ -52,7 +52,7 @@ export default function InsightsPage() {
         subtitle="Recurring themes auto-grouped by Gemini across all scraped reviews"
       />
 
-      <div className="rounded-xl border border-emerald-900/40 bg-[#0b140e]/80 p-4 mb-6">
+      <div className="glass-card rounded-3xl p-4 mb-6">
         <p className="flex items-center gap-1.5 text-sm font-semibold text-white mb-3">
           <Sparkles size={15} className="text-emerald-400" /> Analyse a New Review with AI
         </p>
@@ -96,7 +96,7 @@ export default function InsightsPage() {
         )}
       </div>
 
-      <div className="rounded-xl border border-emerald-900/40 bg-[#0b140e]/80 p-5">
+      <div className="glass-card rounded-3xl p-5">
         <p className="text-sm font-semibold text-white mb-5">Top Issue Clusters by Volume</p>
         <div className="space-y-4">
           {clusters
