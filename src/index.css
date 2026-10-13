@@ -144,6 +144,96 @@ textarea::placeholder {
     transform: scale(0.96);
   }
 
+  /* Buttons ------------------------------------------------------- */
+  .btn-primary,
+  .btn-glass {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+    white-space: nowrap;
+    border-radius: 9999px;
+    padding: 0.62rem 1.25rem;
+    font-size: 14px;
+    line-height: 1.2;
+    transition: background 0.2s ease, transform 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
+  }
+  .btn-primary {
+    background: #e9f2ec;
+    color: #13211a;
+    font-weight: 500;
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: #ffffff;
+  }
+  .btn-glass {
+    color: rgba(255, 255, 255, 0.92);
+    background: rgba(255, 255, 255, 0.13);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  }
+  .btn-glass:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.22);
+  }
+  .btn-primary:active:not(:disabled),
+  .btn-glass:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+  .btn-primary:disabled,
+  .btn-glass:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .btn-sm {
+    padding: 0.4rem 0.95rem;
+    font-size: 12.5px;
+  }
+  .btn-danger:hover:not(:disabled) {
+    background: rgba(244, 114, 130, 0.28);
+  }
+
+  /* Form fields ----------------------------------------------------- */
+  .field {
+    width: 100%;
+    border-radius: 1rem;
+    background: rgba(0, 0, 0, 0.26);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 0.7rem 1rem;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .field:focus {
+    border-color: rgba(255, 255, 255, 0.42);
+    background: rgba(0, 0, 0, 0.34);
+  }
+  select.field option {
+    background: #1a261f;
+    color: #fff;
+  }
+  .field-label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 12.5px;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  /* Small status chip (tone colours are added with utility classes) */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    border-radius: 9999px;
+    border-width: 1px;
+    border-style: solid;
+    padding: 0.12rem 0.6rem;
+    font-size: 11.5px;
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+
   /* Outlined option pill (rate plan / loss driver selectors) */
   .opt-pill {
     border-radius: 9999px;
@@ -193,4 +283,30 @@ textarea::placeholder {
 }
 .cursor-blink {
   animation: blink 1s step-start infinite;
+}
+
+/* ------------------------------------------------------------------ */
+/* Printing an invoice: only the invoice sheet is visible              */
+/* ------------------------------------------------------------------ */
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  .print-area,
+  .print-area * {
+    visibility: visible !important;
+  }
+  .print-area {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100% !important;
+    max-height: none !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+  .no-print {
+    display: none !important;
+  }
 }

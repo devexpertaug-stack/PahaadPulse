@@ -1,7 +1,9 @@
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Mountain, ChevronDown, LogOut, Settings, TrendingUp } from 'lucide-react';
+import { Mountain, ChevronDown, LogOut, RotateCcw, Settings, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
-import { HOTEL_NAME } from '../data/mockData';
+import { HOTEL_NAME } from '../data/seed';
+import { useApp } from '../store/AppStore';
+import Toast from './ui/Toast';
 
 const navItems = [
   { to: '/app/overview', label: 'Overview' },
@@ -16,6 +18,7 @@ export default function Layout() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { rep, dispatch, say } = useApp();
   const isOverview = pathname === '/app/overview';
 
   return (
@@ -71,14 +74,27 @@ export default function Layout() {
               <Settings size={17} strokeWidth={1.6} />
             </button>
             {menuOpen && (
-              <div className="glass-dark animate-fade-in absolute right-0 top-14 z-40 w-44 overflow-hidden rounded-2xl">
-                <button
-                  onClick={() => navigate('/')}
-                  className="flex w-full items-center gap-2 px-4 py-3 text-sm text-white/85 hover:bg-white/10"
-                >
-                  <LogOut size={14} /> Sign out
-                </button>
-              </div>
+              <>
+                <div className="fixed inset-0 z-30" onClick={() => setMenuOpen(false)} aria-hidden />
+                <div className="glass-dark animate-fade-in absolute right-0 top-14 z-40 w-52 overflow-hidden rounded-2xl">
+                  <button
+                    onClick={() => {
+                      dispatch({ type: 'reset' });
+                      setMenuOpen(false);
+                      say('Demo data reset to the starting state');
+                    }}
+                    className="flex w-full items-center gap-2 px-4 py-3 text-sm text-white/85 hover:bg-white/10"
+                  >
+                    <RotateCcw size={14} /> Reset demo data
+                  </button>
+                  <button
+                    onClick={() => navigate('/')}
+                    className="flex w-full items-center gap-2 border-t border-white/10 px-4 py-3 text-sm text-white/85 hover:bg-white/10"
+                  >
+                    <LogOut size={14} /> Sign out
+                  </button>
+                </div>
+              </>
             )}
           </div>
         </header>
@@ -115,7 +131,7 @@ export default function Layout() {
             </div>
             <div className="flex items-center gap-1.5 text-[12px] text-white/60">
               <TrendingUp size={13} className="text-white/70" />
-              Reputation <span className="font-medium text-white">3.57 / 5.0</span>
+              Reputation <span className="font-medium text-white">{rep.avg.toFixed(2)} / 5.0</span>
             </div>
           </div>
         )}
@@ -125,6 +141,7 @@ export default function Layout() {
         </main>
       </div>
 
+      <Toast />
     </div>
   );
 }

@@ -6,23 +6,25 @@ interface RingGaugeProps {
   size?: number;
 }
 
-export default function RingGauge({ value, display, sublabel, color = '#34d399', size = 140 }: RingGaugeProps) {
+export default function RingGauge({ value, display, sublabel, color = '#ffffff', size = 140 }: RingGaugeProps) {
   const radius = size / 2 - 10;
   const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (value / 100) * circumference;
+  const clamped = Math.min(100, Math.max(0, value));
+  const offset = circumference - (clamped / 100) * circumference;
   const center = size / 2;
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90 absolute inset-0">
-        <circle cx={center} cy={center} r={radius} fill="none" stroke="#132019" strokeWidth={10} />
+      <svg width={size} height={size} className="absolute inset-0 -rotate-90" aria-hidden>
+        <circle cx={center} cy={center} r={radius} fill="none" stroke="rgba(255,255,255,0.14)" strokeWidth={9} />
         <circle
           cx={center}
           cy={center}
           r={radius}
           fill="none"
           stroke={color}
-          strokeWidth={10}
+          strokeOpacity={0.92}
+          strokeWidth={9}
           strokeDasharray={circumference}
           strokeDashoffset={offset}
           strokeLinecap="round"
@@ -30,8 +32,8 @@ export default function RingGauge({ value, display, sublabel, color = '#34d399',
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-2xl font-bold text-white">{display}</span>
-        <span className="text-[10px] text-gray-500 uppercase tracking-wide mt-0.5 text-center px-2">{sublabel}</span>
+        <span className="font-display text-[28px] font-light leading-none text-white">{display}</span>
+        <span className="mt-1 px-2 text-center text-[10px] uppercase tracking-[0.14em] text-white/60">{sublabel}</span>
       </div>
     </div>
   );
