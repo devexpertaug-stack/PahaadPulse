@@ -2,7 +2,6 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Mountain, ChevronDown, LogOut, Settings, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
 import { HOTEL_NAME } from '../data/mockData';
-import PhotoCredit from './PhotoCredit';
 
 const navItems = [
   { to: '/app/overview', label: 'Overview' },
@@ -126,7 +125,6 @@ export default function Layout() {
         </main>
       </div>
 
-      <PhotoCredit className="mx-auto mt-4 max-w-[1280px]" />
     </div>
   );
 }

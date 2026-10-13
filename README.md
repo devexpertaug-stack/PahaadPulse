@@ -29,9 +29,4 @@ npm run build    # type-check + production build
 
 - Typography: **Lexend** (light, wide — headings & numbers) + **Outfit** (body), self-hosted via Fontsource.
 - Glass surfaces and the leaf backdrop live in `src/index.css` (`.glass-shell`, `.glass-dark`, `.glass-tile`, `.leaf-bg`).
-- To use a different backdrop, replace `public/bg-calathea.jpg`.
-
-## Credits
-
-Background photo: *Calathea orbifolia* by [Forest & Kim Starr](https://commons.wikimedia.org/wiki/File:Starr-110215-1133_Calathea_orbifolia-leaves-KiHana_Nursery_Kihei-Maui_(25075687535).jpg),
-licensed [CC BY 3.0 US](https://creativecommons.org/licenses/by/3.0/us/) (via Wikimedia Commons).
+- To use a different backdrop, replace `public/bg-leaves.png`.
