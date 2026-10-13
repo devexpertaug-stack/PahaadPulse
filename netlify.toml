@@ -1,0 +1,17 @@
+# Netlify build + hosting config for PahaadPulse (Vite + React SPA)
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# This is a single-page app with client-side routing (react-router).
+# Without this, refreshing or opening a deep link like /app/reviews would 404,
+# because no such file exists on disk. Serve index.html for all routes and let
+# the router take over.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
