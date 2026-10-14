@@ -7,6 +7,7 @@ import ScraperPage from './pages/ScraperPage';
 import InsightsPage from './pages/InsightsPage';
 import ReputationPage from './pages/ReputationPage';
 import HotelOSPage from './pages/HotelOSPage';
+import SubscriptionPage from './pages/SubscriptionPage';
 import { AppProvider } from './store/AppStore';
 
 export default function App() {
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="insights" element={<InsightsPage />} />
           <Route path="reputation" element={<ReputationPage />} />
           <Route path="hotelos" element={<HotelOSPage />} />
+          <Route path="subscription" element={<SubscriptionPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

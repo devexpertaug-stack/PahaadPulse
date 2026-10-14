@@ -12,6 +12,7 @@ const navItems = [
   { to: '/app/insights', label: 'Insights' },
   { to: '/app/reputation', label: 'Reputation' },
   { to: '/app/hotelos', label: 'Hotel OS' },
+  { to: '/app/subscription', label: 'Pricing' },
 ];
 
 export default function Layout() {
